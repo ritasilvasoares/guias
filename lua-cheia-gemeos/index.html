@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#FFFAF1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lua em Gémeos">
+<title>A tua Lua Cheia em Gémeos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap">
+<style>
+/* Layout: uma coluna calma. Fixo em cima (a Lua Cheia, Gémeos, os cinco temas, as cinco perguntas), interativo ao centro (a tua casa e o teu gesto), a família no fim. */
+:root {
+  --bg: #FFFAF1; --surface: #FBF3E6; --fg: #3F0D0C; --body: #4A2E22; --muted: #7A5E4A;
+  --line: #E4D6C2; --gold: #D9B061; --brown: #8D6F57; --rose: #D9C4A9; --wine: #3F0D0C;
+  --soft: #F3E8D8; --chip-on: #3F0D0C; --chip-on-fg: #FFFAF1; --btn-fg: #FFFAF1;
+  --font: "Spectral", Georgia, "Times New Roman", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1E1513; --surface: #2A1E1A; --fg: #F6EBDD; --body: #E6D6C2; --muted: #BFA88F;
+    --line: #4A3830; --gold: #D9B061; --brown: #C9A88C; --rose: #6B5444; --wine: #F6EBDD;
+    --soft: #33251F; --chip-on: #F6EBDD; --chip-on-fg: #1E1513; --btn-fg: #1E1513; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1E1513; --surface: #2A1E1A; --fg: #F6EBDD; --body: #E6D6C2; --muted: #BFA88F;
+  --line: #4A3830; --gold: #D9B061; --brown: #C9A88C; --rose: #6B5444; --wine: #F6EBDD;
+  --soft: #33251F; --chip-on: #F6EBDD; --chip-on-fg: #1E1513; --btn-fg: #1E1513; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--body); font-family: var(--font); font-size: 18px; line-height: 1.55; margin: 0; padding-inline: 16px; padding-block: 28px 60px; }
+main { max-width: 660px; margin-inline: auto; display: flex; flex-direction: column; gap: 40px; }
+.brand { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--brown); font-weight: 500; }
+h1 { color: var(--fg); font-weight: 500; font-size: clamp(2.2rem, 8vw, 3rem); line-height: 1.05; margin: 10px 0 10px; text-wrap: balance; }
+h1 em { font-style: italic; font-weight: 400; color: var(--brown); }
+.meta { color: var(--muted); font-style: italic; margin: 0; }
+h2 { color: var(--fg); font-weight: 600; font-size: 1.45rem; line-height: 1.2; margin: 0; }
+h3 { color: var(--fg); font-weight: 600; font-size: 1.12rem; margin: 0; }
+p { margin: 0; }
+.rule { width: 64px; height: 2px; background: var(--gold); margin-top: 18px; }
+section { display: flex; flex-direction: column; gap: 14px; }
+.lede { font-style: italic; color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.voices { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 10px 0; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.voices span { font-size: 14px; color: var(--muted); font-style: italic; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button, .chip { font: inherit; font-size: 16px; background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor: pointer; min-height: 40px; }
+.seg button[aria-pressed="true"], .chip[aria-pressed="true"] { background: var(--chip-on); color: var(--chip-on-fg); border-color: var(--chip-on); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.voice { border-left: 2px solid var(--gold); padding-left: 12px; font-style: italic; color: var(--fg); }
+.voice b { display: block; font-style: normal; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--brown); font-weight: 600; }
+.themes { display: flex; flex-direction: column; gap: 10px; }
+.theme { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.theme h3 span { margin-right: 6px; }
+ol.q { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 8px; color: var(--fg); }
+ol.q li::marker { color: var(--gold); font-weight: 600; }
+.chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 8px; }
+.chip { border-radius: 8px; text-align: left; }
+.house-n { font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--brown); font-weight: 600; }
+.house-t { font-size: 1.4rem; color: var(--fg); font-weight: 600; line-height: 1.2; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pole { border-radius: 8px; padding: 14px; }
+.pole.go { background: var(--soft); border: 1px solid var(--line); }
+.pole.cel { background: var(--rose); color: #3F0D0C; }
+.pole b { display: block; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 4px; font-weight: 600; }
+.until { font-size: 15px; color: var(--muted); font-style: italic; }
+.mantra { text-align: center; padding: 24px 18px; border: 1px solid var(--gold); border-radius: 8px; }
+.mantra .word { font-size: 2.2rem; letter-spacing: .3em; color: var(--fg); font-weight: 500; }
+.mantra .aff { font-size: 1.35rem; font-style: italic; color: var(--fg); margin-top: 10px; }
+.mantra small { display: block; color: var(--muted); font-size: 14px; margin-top: 6px; }
+.addrow { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: end; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); }
+input, select { font: inherit; font-size: 16px; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; min-height: 44px; width: 100%; }
+.add { font: inherit; font-size: 16px; font-weight: 500; background: var(--wine); color: var(--btn-fg); border: 0; border-radius: 8px; padding: 10px 16px; min-height: 44px; cursor: pointer; }
+.fam { display: flex; flex-direction: column; gap: 10px; }
+.member { display: flex; flex-direction: column; gap: 8px; }
+.member .top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.member .who { font-size: 1.15rem; color: var(--fg); font-weight: 600; }
+.member .rm { font: inherit; font-size: 14px; background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 4px; }
+.empty { color: var(--muted); font-style: italic; font-size: 16px; }
+.howto ol { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px; font-size: 16px; }
+footer { color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-direction: column; gap: 6px; }
+@media (max-width: 480px) { .two { grid-template-columns: 1fr; } .addrow { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="brand">embodiment by design · rita silva soares</div>
+    <h1>a tua Lua Cheia <em>em Gémeos</em></h1>
+    <p class="meta">24 de novembro de 2026 · 2° de Gémeos · até à próxima Lua Cheia, na noite de 23 para 24 de dezembro</p>
+    <div class="rule"></div>
+  </header>
+
+  <div class="voices" role="group" aria-label="Lê em que voz">
+    <span>lê na voz:</span>
+    <div class="seg">
+      <button type="button" data-v="adulto" aria-pressed="true">do adulto</button>
+      <button type="button" data-v="crianca" aria-pressed="false">da criança</button>
+      <button type="button" data-v="avo" aria-pressed="false">da avó</button>
+    </div>
+  </div>
+
+  <section aria-labelledby="s-ceu">
+    <h2 id="s-ceu">🌕 a Lua inteira</h2>
+    <p>a Terra fica no meio, o Sol de um lado e a Lua do outro, de frente um para o outro. o Sol está a 2° de Sagitário, a Lua a 2° de Gémeos: o que pensamos é posto à luz do que acreditamos.</p>
+    <p>a Lua Cheia não é tempo de começar. é tempo de ver, agradecer, celebrar e deixar ir.</p>
+    <p class="voice" data-key="ceu"></p>
+  </section>
+
+  <section aria-labelledby="s-temas">
+    <h2 id="s-temas">os cinco temas de Gémeos, para toda a gente</h2>
+    <p class="lede">todos temos Gémeos no mapa, numa casa ou noutra. por isso esta Lua Cheia acende-nos a todos.</p>
+    <div class="themes" id="themes"></div>
+  </section>
+
+  <section aria-labelledby="s-q">
+    <h2 id="s-q">as cinco perguntas</h2>
+    <p class="lede">respondo com verdade, e sem me julgar.</p>
+    <ol class="q">
+      <li>tenho sido intriguista, fútil e caprichosa ou caprichoso este mês?</li>
+      <li>tenho ignorado os sentimentos das outras pessoas?</li>
+      <li>tenho mudado de opinião muito depressa, ou tenho sido inconstante?</li>
+      <li>tenho sido eloquente de uma forma agressiva?</li>
+      <li>tenho lido o suficiente para continuar a expandir o que sei?</li>
+    </ol>
+    <p class="voice" data-key="perguntas"></p>
+  </section>
+
+  <section aria-labelledby="s-casa">
+    <h2 id="s-casa">🔑 onde esta Lua se acende em ti</h2>
+    <p class="lede">só precisas do signo do teu Ascendente.</p>
+    <p class="until">esta é a casa para esta Lua Cheia, em Gémeos. na próxima Lua, a casa muda.</p>
+    <div class="chips" id="asc" role="group" aria-label="O teu Ascendente"></div>
+    <div class="card" id="house" aria-live="polite"></div>
+  </section>
+
+  <section aria-labelledby="s-fam">
+    <h2 id="s-fam">🏡 e a tua família?</h2>
+    <p class="lede">esta Lua não se acende igual para todos. junta cada pessoa pelo Ascendente e vê onde cai em cada um: cada um no seu lugar.</p>
+    <div class="addrow">
+      <label>nome<input id="fname" autocomplete="off" placeholder="por exemplo, a minha filha"></label>
+      <label>Ascendente<select id="fasc"></select></label>
+      <button class="add" type="button" id="fadd">juntar</button>
+    </div>
+    <div class="fam" id="fam" aria-live="polite"><p class="empty">ainda não juntaste ninguém.</p></div>
+  </section>
+
+  <section class="howto" aria-labelledby="s-ecra">
+    <h2 id="s-ecra">põe este guia no teu ecrã principal</h2>
+    <ol>
+      <li>abre esta página no telemóvel. se a abriste dentro do Substack ou do Instagram, abre-a primeiro no navegador.</li>
+      <li>no iPhone: no Safari, toca em partilhar e depois em "Adicionar ao ecrã principal".</li>
+      <li>no Android: no Chrome, toca nos três pontos e depois em "Adicionar ao ecrã principal" (nalguns telemóveis chama-se "Instale e crie um atalho").</li>
+    </ol>
+  </section>
+
+  <footer>
+    <span>os nomes que juntas ficam só neste ecrã: nada é guardado nem enviado.</span>
+    <span>E tu? Qual é o teu gesto pequeno deste mês?</span>
+    <span>#Docaraças · embodiment by design</span>
+  </footer>
+</main>
+
+<script>
+var FIXED = {
+  ceu: {
+    adulto: "a Lua Cheia é a luz acesa por inteiro. mostra-me o que cresceu, o que já não serve, e o que está pronto para eu largar.",
+    crianca: "a Lua está com a cara toda redonda e acesa, como uma lanterna grande no céu. esta noite ela mostra tudo o que estava escondido. e podes agradecer-lhe por uma coisa boa que aconteceu este mês.",
+    avo: "é a lua do luar, a que deixa a eira clara como se fosse dia. vê-se tudo: o que está maduro para colher e o que já pode ir para o monte. e dorme-se pouco, que a luz entra pelas frinchas da janela."
+  },
+  perguntas: {
+    adulto: "abrando, digo a verdade com cuidado, e escolho aprender a fundo em vez de saber um bocadinho de tudo.",
+    crianca: "nas próximas quatro semanas, fazes perguntas a ti própria ou a ti próprio, como uma detetive ou um detetive. não há respostas erradas. e no fim dizes obrigada pelo que aprendeste.",
+    avo: "devagar se vai ao longe. quem fala com verdade não precisa de levantar a voz."
+  }
+};
+var THEMES = [
+  { i:"💡", t:"iluminar a cabeça", d:"Gémeos é a mente que não pára. esta Lua acende a luz sobre tudo o que andou a circular. não é para resolver tudo. é para ver o que lá está.",
+    adulto:"antes de decidir, escrevo tudo o que tenho na cabeça. quando sai para o papel, deixa de mandar em mim.",
+    crianca:"a tua cabeça é como uma caixa de brinquedos. hoje despejamos tudo no chão para ver o que lá está.",
+    avo:"é como despejar a gaveta em cima da mesa da cozinha. só assim se vê o que se guarda e o que já não presta." },
+  { i:"🗣", t:"libertar as palavras", d:"esta Lua mostra onde falámos de mais, sem convite, ou onde calámos o que era nosso. libertar é escolher as palavras que nos fazem bem.",
+    adulto:"reparo nas frases que repito sobre mim, e largo as que já não são verdade.",
+    crianca:"as palavras são como pássaros. as que te fazem mal, deixas voar para longe. as que te fazem bem, ficam a cantar contigo.",
+    avo:"palavra dita não volta atrás. por isso vale mais dizer pouco e bem do que muito e à pressa." },
+  { i:"🤍", t:"agradecer a quem está perto", d:"Gémeos é a rede de todos os dias: os irmãos, os vizinhos, os amigos, quem nos ensina. esta Lua pede para olhar para eles e agradecer.",
+    adulto:"digo obrigada a uma pessoa perto de mim, em voz alta, por uma coisa pequena.",
+    crianca:"hoje dás um abraço ao teu irmão, ou ao teu amigo, e dizes \"obrigada por brincares comigo\".",
+    avo:"é como agradecer à vizinha que te trouxe as laranjas do quintal. quem está à porta é quem nos vale." },
+  { i:"🎈", t:"celebrar a curiosidade", d:"Gémeos é a criança que pergunta \"porquê?\" e se espanta com tudo. esta Lua pede para celebrar o que descobrimos e quem nos tornámos.",
+    adulto:"celebro uma coisa que aprendi este mês, sobre mim ou sobre a vida.",
+    crianca:"hoje és uma exploradora ou um explorador. qual foi a coisa mais gira que descobriste?",
+    avo:"é como a festa da aldeia depois da colheita. trabalhou-se, agora canta-se e dança-se." },
+  { i:"🍂", t:"deixar ir a dispersão", d:"Gémeos tem duas caras, e às vezes vive dividido. esta Lua pede para deixar ir o que nos espalha, e ficar com o que nos junta.",
+    adulto:"escolho uma coisa e largo as outras. o que é para mim volta.",
+    crianca:"não dá para brincar com todos os brinquedos ao mesmo tempo. escolhes um, e os outros esperam por ti.",
+    avo:"quem corre atrás de duas lebres não apanha nenhuma." }
+];
+var ASC = ["Gémeos","Touro","Carneiro","Peixes","Aquário","Capricórnio","Sagitário","Escorpião","Balança","Virgem","Leão","Caranguejo"];
+var HOUSES = [
+  { t:"quem sou e como me mostro", g:"o corpo e a imagem", d:"liberto o que já não corresponde a quem sou, e celebro o que é.",
+    adulto:"digo sim à ajuda e procuro duas coisas maravilhosas em mim.", crianca:"hoje olhas-te ao espelho e dizes uma coisa bonita sobre ti.", avo:"é sair à rua de cara ao sol.",
+    go:"uma peça de roupa que já não é tua", cel:"vestir a que te faz sentir bonita ou bonito" },
+  { t:"o meu dinheiro e o meu valor", g:"o dinheiro e o valor", d:"a luz cai sobre o que ganho, o que gasto e o que acho que valho. liberto a pressa de ganhar e a dúvida sobre o meu valor.",
+    adulto:"olho para o que entra e sai este mês, e agradeço o que já tenho.", crianca:"abres o teu mealheiro e contas, com alegria, o que já juntaste.", avo:"é contar as moedas do pote e ver que chegam e ainda sobram.",
+    go:"os talões e papéis velhos da carteira", cel:"pôr uma coisa bonita onde guardas o dinheiro" },
+  { t:"as palavras, os irmãos, os vizinhos", g:"a palavra e a vizinhança", d:"é a casa natural de Gémeos, por isso aqui esta Lua fala alto. liberto as conversas que me cansam e celebro quem está perto.",
+    adulto:"digo uma verdade com cuidado a alguém próximo, e calo uma coisa que já não precisa de ser dita.", crianca:"hoje contas ao teu irmão ou ao teu amigo uma coisa boa que ele fez.", avo:"é a conversa à porta com a vizinha, sem mexericos e com laranjas na mão.",
+    go:"as conversas e notificações que pesam", cel:"uma mensagem de agradecimento" },
+  { t:"a casa, a família, a mãe", g:"a casa e a família", d:"a luz entra pela porta de casa. liberto o que pesa no lar e celebro as raízes.",
+    adulto:"arrumo um canto da casa e agradeço à minha linhagem o que me deu.", crianca:"arrumas o teu quarto e dás um abraço comprido à tua mãe.", avo:"é a casa caiada e a mesa posta para todos.",
+    go:"uma gaveta da cozinha", cel:"pôr a mesa bonita para jantar" },
+  { t:"o prazer, a criação, os filhos", g:"o prazer e a criatividade", d:"a luz acende o brincar. liberto a culpa de me divertir e celebro o que crio.",
+    adulto:"faço uma coisa só porque me dá prazer, sem ter de servir para nada.", crianca:"hoje brincas, desenhas ou danças só porque te apetece.", avo:"é o baile da aldeia, com a saia a rodar.",
+    go:"um «tenho de» do fim de semana", cel:"uma hora a brincar ou criar sem objetivo" },
+  { t:"as rotinas, a saúde, o dia a dia", g:"as rotinas e o corpo", d:"a luz cai sobre os hábitos. liberto o que me esgota e celebro as rotinas que já me fazem bem.",
+    adulto:"escolho um hábito que vacilou e volto a ele, sem me castigar.", crianca:"o teu corpo é um jardim: hoje dás-lhe água, sol e uma sopa quentinha.", avo:"é a lida da casa que segura a família, feita com gosto.",
+    go:"um hábito pequeno, como o ecrã à noite", cel:"uma bebida quente na caneca preferida" },
+  { t:"as parcerias e o amor a dois", g:"as relações", d:"a luz cai sobre quem caminha comigo. liberto as relações em que dou mais do que recebo, e celebro as que são verdade dos dois lados.",
+    adulto:"digo ao outro o que preciso, e ouço o que ele precisa.", crianca:"brincas com quem joga limpo contigo, e dizes obrigada no fim.", avo:"é casar com quem se conhece de verdade, e não só da missa.",
+    go:"algo de alguém que ainda guardas", cel:"dizer a quem amas o que admiras" },
+  { t:"a intimidade, o dinheiro partilhado, renascer", g:"o que se partilha", d:"a luz desce ao fundo. liberto o que já morreu e celebro o que renasceu.",
+    adulto:"largo um acordo, um medo ou uma dívida emocional que já não é minha.", crianca:"é como a lagarta que sai do casulo borboleta.", avo:"é a lenha velha que vai ao lume para aquecer a casa nova.",
+    go:"o papel de uma conta já paga", cel:"um banho demorado" },
+  { t:"as crenças, as viagens, o estudo", g:"as crenças e o caminho", d:"a luz abre horizontes. liberto as crenças que me prendem e celebro o que aprendi.",
+    adulto:"escolho um assunto e aprendo a fundo, em vez de saber um bocadinho de tudo.", crianca:"descobres que há mais mundo para lá da tua rua.", avo:"é ir à romaria e voltar com outra cabeça.",
+    go:"um livro que já não te serve", cel:"um sítio novo perto de casa" },
+  { t:"a carreira e o nome", g:"o trabalho e o nome", d:"a luz cai sobre o que mostro ao mundo. liberto o que faço só para agradar e celebro o meu lugar.",
+    adulto:"celebro uma conquista do meu trabalho, por pequena que seja.", crianca:"é o que queres ser quando fores grande, e já hoje és um bocadinho.", avo:"é o nome bom que se tem na terra.",
+    go:"ficheiros e emails velhos", cel:"uma conquista escrita e à vista" },
+  { t:"os amigos e a comunidade", g:"os amigos e os sonhos", d:"a luz cai sobre a tribo. liberto os grupos onde já não pertenço e celebro os que me fazem crescer.",
+    adulto:"agradeço a uma pessoa da minha comunidade, e saio de um grupo que já não é meu.", crianca:"são os amigos que ficam contigo mesmo quando estás zangada ou zangado.", avo:"é saber com quem se pode contar na desfolhada.",
+    go:"um grupo que já não é teu", cel:"ligar a um amigo só para rir" },
+  { t:"o descanso e o mundo de dentro", g:"o descanso", d:"a luz entra no escuro. liberto o que trago escondido e celebro o descanso.",
+    adulto:"durmo mais, sonho, e escrevo o que me vem à noite.", crianca:"é a hora de dormir, quando os sonhos vêm brincar.", avo:"é a terra em pousio, que descansa para dar mais.",
+    go:"o telemóvel uma hora antes de dormir", cel:"deitar mais cedo, com uma vela" }
+];
+var VLABEL = { adulto:"para o adulto", crianca:"para a criança", avo:"para a avó" };
+var st = { v:"adulto", a:0, fam:[] };
+var $ = function(id){ return document.getElementById(id); };
+function esc(x){ return String(x).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function voice(obj){ return '<b>'+VLABEL[st.v]+'</b>'+esc(obj[st.v]); }
+function gesture(h){
+  return '<div class="two"><div class="pole go"><b>deixo ir</b>'+esc(h.go)+'</div><div class="pole cel"><b>celebro</b>'+esc(h.cel)+'</div></div>';
+}
+function drawFixed(){
+  document.querySelectorAll(".voice[data-key]").forEach(function(el){ el.innerHTML = voice(FIXED[el.dataset.key]); });
+  $("themes").innerHTML = THEMES.map(function(t){
+    return '<div class="theme"><h3><span aria-hidden="true">'+t.i+'</span>'+esc(t.t)+'</h3><p>'+esc(t.d)+'</p><p class="voice">'+voice(t)+'</p></div>';
+  }).join("");
+}
+function drawAsc(){
+  $("asc").innerHTML = ASC.map(function(s,i){
+    return '<button class="chip" type="button" data-a="'+i+'" aria-pressed="'+(st.a===i)+'">'+s+'</button>';
+  }).join("");
+}
+function drawHouse(){
+  var h = HOUSES[st.a], n = st.a + 1;
+  $("house").innerHTML =
+    '<span class="house-n">Ascendente em '+ASC[st.a]+' · casa '+n+'</span>'+
+    '<span class="house-t">'+esc(h.t)+'</span>'+
+    '<p>'+esc(h.d)+'</p>'+
+    '<p class="voice">'+voice(h)+'</p>'+
+    '<h3 style="margin-top:6px">o teu gesto pequeno deste mês</h3>'+ gesture(h) +
+    '<p class="until">pequenos, para repetires todos os dias até à próxima Lua Cheia.</p>';
+}
+function drawFam(){
+  if(!st.fam.length){ $("fam").innerHTML = '<p class="empty">ainda não juntaste ninguém.</p>'; return; }
+  $("fam").innerHTML = st.fam.map(function(m, k){
+    var h = HOUSES[m.a];
+    return '<div class="card member"><div class="top"><span class="who">'+esc(m.n)+'</span><span class="house-n">casa '+(m.a+1)+' · '+esc(h.g)+'</span></div>'+
+      '<p class="voice">'+voice(h)+'</p>'+ gesture(h) +
+      '<div class="top"><label style="flex-direction:row;align-items:center;gap:8px">Ascendente<select data-fa="'+k+'" style="width:auto">'+ASC.map(function(s,i){ return '<option value="'+i+'"'+(i===m.a?' selected':'')+'>'+s+'</option>'; }).join("")+'</select></label>'+
+      '<button class="rm" type="button" data-rm="'+k+'">tirar</button></div></div>';
+  }).join("");
+}
+function drawAll(){ drawFixed(); drawHouse(); drawFam(); }
+$("fasc").innerHTML = ASC.map(function(s,i){ return '<option value="'+i+'">'+s+'</option>'; }).join("");
+document.addEventListener("click", function(e){
+  var b = e.target.closest("button"); if(!b) return;
+  if(b.dataset.v){
+    st.v = b.dataset.v;
+    document.querySelectorAll("button[data-v]").forEach(function(x){ x.setAttribute("aria-pressed", String(x.dataset.v === st.v)); });
+    drawAll();
+  } else if(b.dataset.a !== undefined){
+    st.a = +b.dataset.a; drawAsc(); drawHouse();
+  } else if(b.id === "fadd"){
+    var n = $("fname").value.trim() || ("pessoa " + (st.fam.length + 1));
+    st.fam.push({ n:n, a:+$("fasc").value }); $("fname").value = ""; drawFam();
+  } else if(b.dataset.rm !== undefined){
+    st.fam.splice(+b.dataset.rm, 1); drawFam();
+  }
+});
+document.addEventListener("change", function(e){ var t = e.target; if(t.dataset && t.dataset.fa !== undefined){ st.fam[+t.dataset.fa].a = +t.value; drawFam(); var n = document.querySelector("select[data-fa='"+t.dataset.fa+"']"); if(n) n.focus(); } });
+$("fname").addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); $("fadd").click(); } });
+drawAsc(); drawAll();
+</script>
+</body>
+</html>
